@@ -1,1 +1,24 @@
 GET http://localhost:8000/users
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsIm5hbWUiOiJaZWxkaWFudG8iLCJlbWFpbCI6InplbEBnbWFpbC5jb20iLCJpYXQiOjE2NjEwODUxNzksImV4cCI6MTY2MjM4MTE3OX0.sWsVjThXw9ZT4Lg1vTuc1SG71ihXUSqGFYo6MrjRp9o
+
+###
+POST http://localhost:8000/users
+Content-Type: application/json
+
+{
+    "name": "Zeldianto",
+    "email": "zel@gmail.com",
+    "password": "123"
+}
+
+###
+POST http://localhost:8000/login
+Content-Type: application/json
+
+{
+    "email": "zel@gmail.com",
+    "password": "123"
+}
+
+###
+GET http://localhost:8000/refresh-token
