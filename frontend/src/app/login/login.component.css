@@ -1,0 +1,22 @@
+input {
+    display: block;
+    padding: 8px 15px;
+    border-radius: 8px;
+    border: none;
+    background-color: rgb(204, 204, 204);
+    margin-bottom: 10px;
+}
+
+button {
+    background-color: rgb(0, 132, 255);
+    padding: 8px 15px;
+    color: white;
+    border-radius: 8px;
+    border: none;
+    cursor: pointer;
+}
+
+a {
+    display: block;
+    margin-top: 10px;
+}
