@@ -45,14 +45,14 @@ export const Login = async (req, res) => {
             { userId, name, email },
             process.env.ACCESS_TOKEN_SECRET,
             {
-                expiresIn: "20s",
+                expiresIn: "10s", //10 detik
             }
         );
         const refreshToken = jwt.sign(
             { userId, name, email },
             process.env.REFRESH_TOKEN_SECRET,
             {
-                expiresIn: "1d",
+                expiresIn: "30s",
             }
         );
         await Users.update(
@@ -67,7 +67,7 @@ export const Login = async (req, res) => {
         );
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
-            maxAge: 24 * 60 * 60 * 1000,
+            maxAge: 24 * 60 * 60 * 1000, // 1 hari / 
         });
         res.json({ accessToken });
     } catch (error) {

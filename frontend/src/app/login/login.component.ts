@@ -1,6 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
+import decode from 'jwt-decode';
 import { AuthInterceptor } from '../auth.interceptor';
 
 @Component({
@@ -18,14 +19,21 @@ export class LoginComponent implements OnInit {
 
     login() {
         this.http
-            .post('http://localhost:8000/login', {
-                email: this.email,
-                password: this.pass,
-            })
+            .post(
+                'http://localhost:8000/login',
+                {
+                    email: this.email,
+                    password: this.pass,
+                },
+                { withCredentials: true }
+            )
             .subscribe((data: any) => {
-                console.log(data);
-                AuthInterceptor.accessToken = data.accessToken;
-                this.router.navigate(['/home']);
+                if (data.accessToken) {
+                    // const decoded:any = decode(data.accessToken);
+                    // localStorage.setItem('exp', decoded.exp);
+                    AuthInterceptor.accessToken = data.accessToken;
+                    this.router.navigate(['/home']);
+                }
             });
     }
 }

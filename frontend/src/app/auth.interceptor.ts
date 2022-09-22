@@ -7,48 +7,43 @@ import {
     HttpClient,
     HttpErrorResponse,
 } from '@angular/common/http';
-import { Observable, throwError } from 'rxjs';
-import { catchError, switchMap } from 'rxjs/operators';
+import { from, Observable, throwError } from 'rxjs';
+import { catchError, map, switchMap } from 'rxjs/operators';
+import { Router } from '@angular/router';
+import decode from 'jwt-decode';
 
 @Injectable()
 export class AuthInterceptor implements HttpInterceptor {
+
     static accessToken = '';
-    refresh = false;
 
-    constructor(private http: HttpClient) {}
+    constructor(private http: HttpClient, private route: Router) {}
 
-    intercept(
-        request: HttpRequest<unknown>,
-        next: HttpHandler
-    ): Observable<HttpEvent<unknown>> {
+    intercept( request: HttpRequest<unknown>, next: HttpHandler ): Observable<HttpEvent<unknown>> {
         const req = request.clone({
             setHeaders: {
                 Authorization: `Bearer ${AuthInterceptor.accessToken}`,
             },
         });
-        return next.handle(req).pipe(catchError((err: HttpErrorResponse) => {
-                if (err.status === 401 && !this.refresh) {
-                    this.refresh = true;
-                    return this.http
-                        .get(
-                            'http://localhost:8000/refresh-token',
-                            { withCredentials: true }
-                        )
-                        .pipe(
-                            switchMap((res: any) => {
-                                AuthInterceptor.accessToken = res.token;
-
-                                return next.handle(
-                                    request.clone({
-                                        setHeaders: {
-                                            Authorization: `Bearer ${AuthInterceptor.accessToken}`,
-                                        },
-                                    })
-                                );
-                            })
-                        );
+        return next.handle(req).pipe(
+            catchError((err: HttpErrorResponse) => {
+                if (err.status === 401) {
+                    return this.http.get('http://localhost:8000/refresh-token', { withCredentials: true }).pipe(
+                        switchMap((data:any)=>{
+                            AuthInterceptor.accessToken = data.accessToken;
+                            return next.handle(request.clone({
+                                setHeaders: {
+                                    Authorization: `Bearer ${AuthInterceptor.accessToken}`,
+                                },
+                            }))
+                        })
+                    )
                 }
-                this.refresh = false;
+                if (err.status === 403) {
+                    this.http.delete('http://localhost:8000/logout', { withCredentials: true });
+                    AuthInterceptor.accessToken = '';
+                    this.route.navigate(['/login']);
+                }
                 return throwError(() => err);
             })
         );
